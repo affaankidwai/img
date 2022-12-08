@@ -1,49 +1,39 @@
+import { Configuration, OpenAIApi } from "openai";
 import React, { useState } from "react";
-import openai from "openai";
-
-// Set up the OpenAI API client
-openai.apiKey = "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";
 
 const ImageGenerator = () => {
-  const [text, setText] = useState("");
-  const [image, setImage] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const configuration = new Configuration({
+    apiKey: process.env.REACT_APP_API_KEY,
+  });
 
-  // Handle changes to the input text
-  const handleChange = (event) => {
-    setText(event.target.value);
+  const openai = new OpenAIApi(configuration);
+  const generateImage = async () => {
+    const res = await openai.createImage({
+      prompt: prompt,
+      n: 1,
+      size: "512x512",
+    });
+
+    console.log(res.data.data[0].url);
   };
-
-  // Handle form submission
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    // Use GPT-3 to generate an image based on the input text
-    openai.image(
-      {
-        prompt: text,
-        model: "image-alpha-001",
-      },
-      (err, response) => {
-        if (err) {
-          console.log(err);
-        } else {
-          // Update the state with the generated image
-          setImage(response.data[0].image);
-        }
-      }
-    );
-  };
+  {
+  }
 
   return (
-    <div className="App">
-      <form onSubmit={handleSubmit}>
-        <label>
-          Enter the text you want to generate an image for:
-          <input type="text" value={text} onChange={handleChange} />
-        </label>
-        <input type="submit" value="Generate" />
-        {image && <img src={image} alt="hel" />}
-      </form>
+    <div className="app-main">
+      <>
+        <h2>Generate an Image using Open AI API</h2>
+
+        <textarea
+          className="app-input"
+          placeholder="Search Bears with Paint Brushes the Starry Night, painted by Vincent Van Gogh.."
+          onChange={(e) => setPrompt(e.target.value)}
+          rows="10"
+          cols="40"
+        />
+        <button onClick={generateImage}>Generate an Image</button>
+      </>
     </div>
   );
 };
